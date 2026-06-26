@@ -1,0 +1,26 @@
+{
+  "success": true,
+  "stages": {
+    "resource_finder": {
+      "success": true,
+      "completion_marker": "/workspaces/phase_transitions_in_ai_alignm_20260626_012606_32e373e9/.resource_finder_complete",
+      "outputs": {
+        "literature_review": "/workspaces/phase_transitions_in_ai_alignm_20260626_012606_32e373e9/literature_review.md",
+        "resources_catalog": "/workspaces/phase_transitions_in_ai_alignm_20260626_012606_32e373e9/resources.md",
+        "papers_dir": "/workspaces/phase_transitions_in_ai_alignm_20260626_012606_32e373e9/papers",
+        "code_dir": "/workspaces/phase_transitions_in_ai_alignm_20260626_012606_32e373e9/code"
+      },
+      "log_file": "/workspaces/phase_transitions_in_ai_alignm_20260626_012606_32e373e9/logs/resource_finder_claude.log",
+      "transcript_file": "/workspaces/phase_transitions_in_ai_alignm_20260626_012606_32e373e9/logs/resource_finder_claude_transcript.jsonl",
+      "elapsed_time": 797.622894525528
+    },
+    "experiment_runner": {
+      "success": true,
+      "return_code": 0,
+      "elapsed_time": 1505.837929725647,
+      "log_file": "/workspaces/phase_transitions_in_ai_alignm_20260626_012606_32e373e9/logs/execution_claude.log",
+      "transcript_file": "/workspaces/phase_transitions_in_ai_alignm_20260626_012606_32e373e9/logs/execution_claude_transcript.jsonl"
+    }
+  },
+  "work_dir": "/workspaces/phase_transitions_in_ai_alignm_20260626_012606_32e373e9"
+}

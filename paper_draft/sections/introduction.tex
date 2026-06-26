@@ -1,0 +1,87 @@
+\section{Introduction}\label{sec:intro}
+
+A central empirical puzzle in contemporary AI safety is \emph{emergent misalignment} (EM):
+finetuning a large language model on a narrow, seemingly harmless dataset---insecure code,
+or bad health advice---can cause the model to become broadly misaligned across unrelated
+domains \cite{betley2025em,wang2025persona}. The phenomenon is fragile and regime-dependent.
+The same intervention sometimes produces a null result (robust alignment), sometimes a gradual
+drift, and sometimes a sudden behavioral collapse \cite{soligo2026em,nghiem2026trait}. There is,
+at present, no predictive theory for \emph{when} an alignment intervention catastrophically
+fails, nor for the \emph{order} of the failure (continuous versus abrupt), nor for early-warning
+signals that precede it.
+
+This is precisely the kind of question that the mathematics of \emph{critical transitions}
+was built to answer. Bifurcation theory of fast--slow systems \cite{kuehn2011}, dynamic
+transition theory for gradient flows \cite{mawang2008}, and the variational Free Energy
+Principle (FEP) of theoretical biology \cite{friston2021} together supply order parameters,
+threshold criteria, normal forms, and divergence laws. Yet this machinery has never been
+applied to alignment, and the empirical EM literature uses none of its language. The two
+bodies of work have remained disjoint. The contribution of this paper is to build the missing
+bridge and to prove the theorems it implies.
+
+\paragraph{The problem.}
+We ask whether alignment dynamics can be modeled as variational free-energy minimization in
+which a narrow misalignment intervention of strength $\lambda$ induces a phase transition in
+the energy landscape, such that: (i) a critical threshold $\lambda^\ast$ separates robust
+alignment from EM; (ii) the order of the transition is predictable; and (iii) the framework
+predicts which intervention regimes yield a null result versus a sudden collapse, together with
+quantitative precursors. The empirical literature poses exactly this and leaves it open,
+remarking that the transition order ``may itself depend on the intervention regime''
+\cite{nghiem2026trait,soligo2026em}.
+
+\paragraph{Our approach and results.}
+We model the misalignment order parameter $m\in\R$ (identified empirically with a toxic-persona
+latent, the dominant principal component of trait drift, or a moral-susceptibility score) as
+the internal coordinate of an FEP gradient flow $\dot m=-\partial_m F$. We then \emph{derive}
+the effective potential from a two-component generative mixture: a Taylor expansion of the
+FEP free energy about the aligned state yields the cusp-catastrophe normal form
+\begin{equation}\label{eq:cusp-intro}
+   F(m;a,h)=\tfrac14 b\,m^4+\tfrac12 a(\lambda)\,m^2-h(\lambda)\,m,\qquad b>0,
+\end{equation}
+with $a(\lambda)=a_0-c\lambda$ an alignment stiffness eroded by the intervention and
+$h(\lambda)$ a directional bias set by its asymmetry. From the single family
+\eqref{eq:cusp-intro} we prove:
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{A critical threshold (Theorem~\ref{thm:threshold}).} The aligned equilibrium
+    $m=0$ is asymptotically stable if and only if $a(\lambda)>0$, and loses stability when the
+    Hessian eigenvalue crosses zero at the unique $\lambda^\ast=a_0/c$. Below $\lambda^\ast$:
+    robust alignment. Above: emergent misalignment.
+  \item \textbf{Order set by symmetry (Theorems~\ref{thm:pitchfork}--\ref{thm:fold}).}
+    A symmetric intervention ($h\equiv0$) gives a supercritical pitchfork---a \emph{continuous}
+    transition with mean-field exponent $\beta=\tfrac12$ (the gradual-LoRA regime). A biased
+    intervention ($h\neq0$) unfolds the pitchfork into a fold (saddle-node), giving a
+    \emph{catastrophic jump with hysteresis} on the exact cusp curve $27bh^2+4a^3=0$ (the
+    full-finetune regime). This unifies the two empirical kinetic regimes in one normal form.
+  \item \textbf{Early-warning laws (Theorem~\ref{thm:earlywarning}).} Near $\lambda^\ast$ the
+    stationary variance and autocorrelation time of $m$ diverge (critical slowing down),
+    giving a pre-failure precursor in which the internal order parameter \emph{leads} the
+    behavioral jump.
+\end{itemize}
+
+\paragraph{Proof techniques.}
+The threshold is a linear-stability calculation; the order of the transition follows from
+center-manifold/Lyapunov--Schmidt reduction together with the gradient dynamic-transition
+sign criterion of Ma--Wang \cite{mawang2008} and the catastrophic-bifurcation classification
+of Kuehn \cite{kuehn2011}; the cusp curve is obtained by eliminating $m$ between $F'$ and
+$F''$ (a resultant computation); the early-warning laws come from linearizing the governing
+stochastic differential equation to an Ornstein--Uhlenbeck process. Every analytic claim is
+checked symbolically (the resultant is recovered exactly as $b^2(4a^3+27bh^2)$) and numerically
+(variance divergence, hysteresis folds matching the analytic curve to within $1\%$, and a
+stationary law matching the Boltzmann form to a Jensen--Shannon divergence of
+$6\times10^{-4}$ nats). Calibrated to the reported empirical thresholds, the model produces a
+universality data-collapse and classifies null-versus-EM outcomes with ROC-AUC $0.996$ and
+threshold MAE $0.056$.
+
+\paragraph{Significance.}
+The upshot is that \emph{when} an alignment intervention catastrophically fails is a computable
+property of the landscape---the signs of $a(\lambda)$ and $h(\lambda)$---and the failure is
+preceded by measurable critical-slowing-down signatures usable as an early-warning monitor.
+This turns an empirical surprise into an a priori, monitorable risk calculation.
+
+\paragraph{Organization.}
+Section~\ref{sec:prelim} fixes notation, recalls the prerequisite results from the FEP and
+critical-transition literature, and states the model. Section~\ref{sec:results} contains the
+main theorems with complete proofs, illustrative examples, and the computational verification.
+Section~\ref{sec:discussion} discusses implications, limitations, and open problems, and
+Section~\ref{sec:conclusion} concludes.

@@ -1,0 +1,111 @@
+\section{Preliminaries}\label{sec:prelim}
+
+This section fixes notation, recalls the prerequisite results we cite (stated, not reproved),
+and defines the model. Throughout, $m\in\R$ is a scalar order parameter and $\lambda\ge0$ a
+scalar control parameter.
+
+\subsection{Order and control parameters}
+
+\begin{definition}[Order parameter]\label{def:order}
+The \emph{misalignment order parameter} $m\in\R$ is the one-dimensional internal-state
+coordinate of the system: $m=0$ denotes the aligned state and large $|m|$ denotes a misaligned
+state. The physical observable is $|m|$; allowing $m\in\R$ exposes the reflection symmetry that
+governs the pitchfork. Empirically, $m$ is identified with a toxic-persona latent activation,
+the dominant principal component $|\mathrm{PC1}|$ of trait drift, or a moral-susceptibility
+score $S$ \cite{wang2025persona,nghiem2026trait,costa2026collapse}.
+\end{definition}
+
+\begin{definition}[Control and bias]\label{def:control}
+The \emph{intervention strength} $\lambda\ge0$ is the slow control variable (malicious-data
+fraction, training step, or LoRA rank). The \emph{bias field} $h\in\R$ encodes the directional
+asymmetry of the intervention. We take the affine calibrations
+\begin{equation}\label{eq:calib}
+   a(\lambda)=a_0-c\lambda,\qquad h(\lambda)=h_0+e\lambda,
+   \qquad a_0,c>0,\ \ e\ge0,
+\end{equation}
+so that the alignment stiffness $a$ decreases with the intervention.
+\end{definition}
+
+\subsection{The free energy and its flow}
+
+\begin{definition}[Effective free energy]\label{def:F}
+For a fixed quartic coefficient $b>0$, the \emph{effective free energy} is the cusp normal form
+\begin{equation}\label{eq:cusp}
+   F(m;a,h)\;=\;\tfrac14\,b\,m^4+\tfrac12\,a\,m^2-h\,m .
+\end{equation}
+The induced \emph{gradient flow} and its stochastic perturbation are
+\begin{equation}\label{eq:flow}
+   \dot m=-F'(m)=-(b\,m^3+a\,m-h),\qquad
+   dm=-F'(m)\,dt+\sigma\,dW_t,
+\end{equation}
+with $\sigma>0$ the noise amplitude and $W_t$ a standard Wiener process.
+\end{definition}
+
+\begin{definition}[Curvature and stability]\label{def:curv}
+The \emph{Hessian} (curvature) of $F$ is $H(m)=F''(m)=3bm^2+a$. An equilibrium $m_e$ of
+\eqref{eq:flow} (a root of $F'$) is asymptotically stable if and only if $H(m_e)>0$. We write
+$\alpha(\lambda)=H(m_a)$ for the \emph{recovery rate} at the aligned equilibrium $m_a$ and
+$\Lambda=-H(m_e)$ for the \emph{Lyapunov exponent} at $m_e$.
+\end{definition}
+
+\subsection{Prerequisite results}
+
+We state the results we use; full statements and proofs are in the cited sources. The first is
+the variational-flow lemma of the Free Energy Principle.
+
+\begin{theorem}[Free-energy lemma; Friston, Da Costa, Parr~\cite{friston2021}]\label{thm:fep}
+Under a Markov-blanket partition at nonequilibrium steady state, the expected flow of the
+internal states $\mu$ is $\dot\mu=(Q-\Gamma)\nabla_\mu F$, where $\Gamma$ is a positive-definite
+diffusion (mobility) tensor and $Q=-Q^\top$ is solenoidal. The free energy $F$ is a Lyapunov
+function for the expected flow and is an upper bound on surprisal $\Im(x)=-\ln p(x)$.
+\end{theorem}
+
+\begin{theorem}[Catastrophic-bifurcation classification; Kuehn~\cite{kuehn2011}]\label{thm:kuehn}
+A codimension-one equilibrium bifurcation is a critical (catastrophic, jump) transition if and
+only if it is a fold/saddle-node, a subcritical Hopf, a subcritical pitchfork, or
+transcritical. Supercritical pitchfork and Hopf bifurcations are continuous (non-catastrophic).
+\end{theorem}
+
+\begin{theorem}[Gradient dynamic-transition criterion; Ma--Wang~\cite{mawang2008}]\label{thm:mawang}
+For a gradient (variational) flow, the dynamic transition at $\lambda_0$ is continuous
+(Type-I) if the bifurcating state is locally asymptotically stable at $\lambda_0$, and a jump
+(Type-II) otherwise. Equivalently, reducing the flow on the center manifold to
+$\dot x=\alpha x^k+o(|x|^k)$ with $k$ odd, the transition is continuous if $\alpha<0$ and a jump
+if $\alpha>0$.
+\end{theorem}
+
+\begin{theorem}[Early-warning laws; Kuehn~\cite{kuehn2011}]\label{thm:warning}
+For fluctuations linearized about an attracting equilibrium with recovery rate $\alpha>0$, the
+Ornstein--Uhlenbeck approximation gives stationary variance $\Var(m)\to\sigma^2/(2\alpha)$ and
+lag-$\tau$ autocorrelation $\rho(\tau)=e^{-\alpha\tau}$. As $\alpha\to0^+$ on approach to a
+transition, both the variance and the autocorrelation time $1/\alpha$ diverge.
+\end{theorem}
+
+\begin{theorem}[Noise--timescale scaling; Kuehn~\cite{kuehn2011}]\label{thm:noise}
+For a fold with slow-variable speed $\varepsilon$, noise-induced escape before the
+deterministic threshold is unlikely if $\sigma\ll\sqrt{\varepsilon}$ and almost sure if
+$\sigma\gg\sqrt\varepsilon$, with an intermediate regime at $\sigma\approx\sqrt\varepsilon$
+(and $\sigma\approx\varepsilon^{3/4}$ for the pitchfork).
+\end{theorem}
+
+We also record, for the limitations discussion, the blanket-degradation result of Aguilera et
+al.~\cite{aguilera2022}: in canonical nonequilibrium models the conditional mutual information
+$I(x;y\mid b)$ across a Markov blanket grows with entropy production and peaks near the
+order--disorder critical point. This bounds the regime in which Theorem~\ref{thm:fep}'s gradient
+form is a good approximation.
+
+\subsection{Standing assumptions}
+
+We work under the following assumptions, justified in Section~\ref{sec:discussion}.
+\begin{enumerate}[label=(A\arabic*),leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \emph{Quasi-gradient regime.} The solenoidal part $Q$ of Theorem~\ref{thm:fep} is
+    neglected; we analyze the symmetric (gradient) part of the flow, which governs the
+    stationary density and the transition. The blanket does not dissolve
+    (Theorem~\ref{thm:fep} applies; cf.~\cite{aguilera2022}).
+  \item \emph{One-dimensional reduction.} The high-dimensional internal state is reduced to the
+    scalar $m$, justified by the empirically observed rank-one dominance of the misalignment
+    direction \cite{nghiem2026trait,minder2026traces}; the reduction is exact locally on the
+    center manifold.
+  \item \emph{Positive quartic near threshold.} $b>0$ in a neighborhood of $\lambda^\ast$, so
+    $F$ is bounded below and the local expansion \eqref{eq:cusp} is the correct normal form.
+\end{enumerate}

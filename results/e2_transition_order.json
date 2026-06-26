@@ -1,0 +1,6 @@
+{
+  "T2_threshold": "F''(0)=a; aligned m=0 stable iff a>0; eigenvalue crosses 0 at a=0",
+  "T3_pitchfork_branch_curvature": "-2a (>0 for a<0, stable); b>0 supercritical continuous; beta=1/2",
+  "T4_fold_set_resultant_over_cusp_target": "b**2",
+  "T4_fold_set": "27 b h^2 + 4 a^3 = 0"
+}

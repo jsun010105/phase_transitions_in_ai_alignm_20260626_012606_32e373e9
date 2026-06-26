@@ -1,0 +1,88 @@
+\section{Discussion}\label{sec:discussion}
+
+\subsection{What the cusp explains}
+
+The framework resolves the central empirical puzzle---narrow finetuning sometimes causes broad
+misalignment and sometimes does not, sometimes gradually and sometimes suddenly---by showing
+that all of these behaviors are the \emph{same} two-parameter family \eqref{eq:cusp}. The
+decisive variable is the symmetry/bias $h$ of the intervention. A rank-deficient or orthogonal
+(symmetric) intervention rides the pitchfork axis and produces a continuous onset
+(Theorem~\ref{thm:pitchfork}), matching the gradual LoRA drift \cite{nghiem2026trait}; a
+directionally biased (full-finetune) intervention crosses a fold and produces a catastrophic
+jump with hysteresis (Theorem~\ref{thm:fold}), matching the sudden full-finetune saturation and
+basin collapse \cite{soligo2026em}. This is precisely the literature's open question---that the
+order ``may itself depend on the intervention regime''---now given a mechanism.
+
+\subsection{Recovering empirical regularities}
+
+The model reproduces four reported regularities. (i) The threshold dose--response (negligible
+behavioral EM until a critical malicious fraction, then a steep rise \cite{wang2025persona}) is
+the branch $|m|=\sqrt{c(\lambda-\lambda^\ast)/b}$ above $\lambda^\ast$
+(Theorem~\ref{thm:pitchfork}). (ii) The internal latent leading the behavioral jump is
+Theorem~\ref{thm:earlywarning} and Remark~\ref{rem:lead}: the variance of the internal order
+parameter rises before the behavioral observable departs zero, a lead of
+$\Delta\lambda\approx0.125$. (iii) The disparate thresholds across domains collapse onto one
+normal-form curve under $\lambda\mapsto\lambda/\lambda^\ast$ (Section~\ref{sec:eval}), predicting
+a universality class. (iv) Hysteresis (Theorem~\ref{thm:fold}) explains why remediation requires
+benign data and does not retrace the onset path: the reverse transition occurs at a different
+control value than the onset \cite{wang2025persona}.
+
+\subsection{Defeating the ``mirage'' objection}
+
+A natural objection, following the emergent-abilities debate \cite{wei2022emergent}, is that the
+apparent abruptness is an artifact of thresholding a smooth underlying metric rather than a real
+transition. The framework answers this structurally: the abruptness here is intrinsic to $F$---a
+genuine saddle-node at which a minimum of the potential is destroyed (Theorem~\ref{thm:fold})---
+not a thresholded smooth metric. The order parameter $m$ is a smooth internal coordinate, and the
+jump is a topological change in the equilibrium set, independently witnessed by hysteresis and by
+the bimodality of the stationary law (Figure~\ref{fig:boltzmann}). The mirage objection therefore
+does not apply to the biased regime.
+
+\subsection{Limitations}
+
+We are explicit about scope. \emph{First}, calibration is to reported summary statistics
+(thresholds, percentage order-parameter changes), not raw per-sample data. The data-collapse
+$R^2=1.000$ is therefore a consistency statement---two reported thresholds are compatible with
+one normal form---and not a fit to raw dose--response curves; confirming the universality class
+requires the underlying datasets. \emph{Second}, the reduction to a scalar $m$ is an
+approximation, justified by the empirically observed rank-one dominance
+\cite{nghiem2026trait,minder2026traces} but exact only locally on the center manifold (assumption
+(A2)). \emph{Third}, Theorem~\ref{thm:gradflow} uses the FEP gradient form; out of equilibrium
+the Markov blanket can degrade near criticality, where $I(x;y\mid b)$ peaks \cite{aguilera2022},
+so we restrict to the quasi-gradient regime (assumption (A1)) and flag $I(x;y\mid b)$ as an
+additional candidate early-warning signal rather than modeling blanket dissolution.
+\emph{Fourth}, the FEP flow is identifiable only up to the solenoidal part $Q$, which does not
+affect the stationary density but could affect transient approach times; we analyze the gradient
+part, which governs the transition. \emph{Fifth}, the exponents $\beta=\tfrac12$, the
+Ornstein--Uhlenbeck early-warning laws, and the cusp itself are mean-field/Landau predictions;
+genuine finite-size or fluctuation-dominated corrections are not modeled.
+
+\subsection{Open questions}
+
+Several questions follow naturally.
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \emph{Predict $\lambda^\ast$ a priori from model internals.} Can the critical malicious
+    fraction be read off the Hessian curvature $H=\nabla^2\Im$ (basin flatness, efficiency gap
+    \cite{soligo2026em}) \emph{before} training, rather than calibrated post hoc?
+  \item \emph{Universality class.} Is the misalignment-onset collapse genuinely mean-field
+    ($\beta=\tfrac12$), or does it carry the nontrivial exponents reported for grokking
+    \cite{wang2026dimensional,clauw2024grokking}?
+  \item \emph{Blanket dissolution as an order parameter.} Does $I(x;y\mid b)$
+    \cite{aguilera2022} rise at the alignment critical point, and does it outperform variance and
+    autocorrelation as an early warning?
+  \item \emph{Measuring $h$.} Can the bias field $h$---which predicts continuous versus
+    catastrophic---be estimated from the alignment of the rank-one finetuning direction with the
+    misalignment axis \cite{minder2026traces}?
+  \item \emph{Higher-codimension catastrophes.} Do multiple simultaneous interventions realize
+    the butterfly or swallowtail catastrophes, producing extra metastable ``personas''?
+\end{itemize}
+
+\subsection{Generalizations}
+
+The natural generalization is to higher-codimension singularities. Adding a quintic or sextic
+term and a second control unfolds the cusp into the swallowtail or butterfly catastrophe, whose
+multiple metastable minima would model several coexisting misaligned personas. A multivariate
+order parameter $m\in\R^d$ with a center-manifold reduction would relax assumption (A2) and test
+when the scalar reduction is faithful. Finally, retaining the solenoidal $Q$ would let one study
+transient approach times and the geometry of the basin boundary, complementing the
+stationary-density analysis carried out here.

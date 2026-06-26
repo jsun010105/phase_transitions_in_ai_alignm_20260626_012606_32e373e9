@@ -1,0 +1,1017 @@
+You are an academic paper writer for mathematics. Generate a complete AMS-style
+paper based on the mathematical results provided.
+
+════════════════════════════════════════════════════════════════════════════════
+                         IMPORTANT: BEFORE YOU START
+════════════════════════════════════════════════════════════════════════════════
+
+Before writing any content, you MUST complete these steps:
+
+1. READ THE SKILL: Review the paper-writer skill at .claude/skills/paper-writer/SKILL.md
+2. READ THE STYLE GUIDE: Study templates/paper_writing/lab_style_guide.md carefully
+3. REVIEW AMS SAMPLE: Skim paper_draft/example_paper.tex for LaTeX formatting
+   conventions ONLY — it is the official AMS journal sample file that demonstrates
+   how to use amsart theorem environments, equation formatting, list types,
+   bibliography style, and document structure. It is NOT a real paper and its
+   "content" is purely illustrative (placeholder lemmas, dummy proofs, etc.).
+   Do NOT imitate its content or narrative structure.
+4. REVIEW LANGUAGE STYLE: Browse paper_examples/ for language and exposition patterns
+5. VERIFY COMMAND TEMPLATES: Command templates (math.tex, general.tex, macros.tex)
+   are pre-copied to paper_draft/commands/
+
+CRITICAL: The AMS sample file is a LaTeX formatting reference, not a content template.
+Use it to learn \documentclass{amsart} conventions (theorem/proof environments,
+\bibliographystyle{amsplain}, author/address blocks). Write your own content
+based on the research report below.
+
+════════════════════════════════════════════════════════════════════════════════
+                            RESEARCH REPORT
+════════════════════════════════════════════════════════════════════════════════
+
+# Phase Transitions in AI Alignment: A Free Energy Principle Framework for Predicting Emergent Misalignment
+
+**Domain:** Mathematics (applied dynamical systems / bifurcation theory / variational free energy)
+**Date:** 2026-06-26 · **Compute:** CPU-only · **Status:** all six phases completed.
+
+---
+
+## 1. Executive Summary
+
+We give a rigorous mathematical framework in which **AI alignment dynamics are a variational
+free-energy (FEP) gradient flow** and a narrow misalignment intervention of strength `λ`
+induces a **phase transition** in the energy landscape. The central object — *derived*, not
+merely posited, from a two-component generative mixture in the Free Energy Principle formalism
+— is the **cusp-catastrophe free energy**
+
+```
+    F(m; a, h) = ¼ b m⁴ + ½ a(λ) m² − h(λ) m ,     b > 0 ,
+```
+
+where `m` is a scalar misalignment order parameter (identified empirically with the
+toxic-persona latent / `|PC1|` of trait drift / susceptibility `S`), `a(λ)` is the alignment
+*stiffness* eroded by the intervention, and `h(λ)` is the *directional bias* the malicious data
+injects. From this single two-parameter family we prove:
+
+1. **(Existence of a critical threshold, Thm 2).** The aligned state `m=0` is stable iff
+   `a(λ)>0`; it loses stability when the Hessian eigenvalue crosses zero at `λ*`. Below `λ*`:
+   robust alignment (null result). Above `λ*`: emergent misalignment.
+2. **(Order of the transition, Thms 3–4).** The transition order is decided by the symmetry
+   of the intervention. A **symmetric** intervention (`h≡0`, rank-deficient/orthogonal gradient
+   — the gradual-LoRA regime) gives a **supercritical pitchfork → continuous** transition with
+   mean-field exponent `β=1/2`. A **biased** intervention (`h≠0` — the full-finetune regime)
+   **unfolds the pitchfork into a fold/saddle-node → catastrophic jump with hysteresis**, on
+   the exact cusp curve `27 b h² + 4 a³ = 0`. *This unifies the two empirical kinetic regimes
+   (gradual vs sudden) in one normal form and answers the literature's open question of why the
+   order "may itself depend on the intervention regime."*
+3. **(Early-warning laws, Thm 5).** Near `λ*` the variance and autocorrelation time of `m`
+   **diverge** (critical slowing down), giving a quantitative pre-failure precursor — the
+   internal order parameter *leads* the behavioural jump.
+
+Every analytic claim is verified **symbolically** (SymPy: the cusp set is recovered exactly as
+`resultant_m(F',F'') = b²(4a³+27bh²)`) and **numerically** (SciPy SDE: variance divergence,
+hysteresis jumps matching the analytic folds to <1%, Boltzmann stationary law to JS = 6×10⁻⁴
+nats). Calibrated to the reported empirical thresholds (Wang et al. 2025: 25% vs 75% malicious
+fraction), the model produces a **universality data-collapse** of both domains onto one curve
+and classifies null-vs-emergent-misalignment outcomes with **ROC-AUC = 0.996** and threshold
+**MAE = 0.056**.
+
+**Practical implication:** *when* an alignment intervention catastrophically fails is a
+computable property of the landscape (sign of `a(λ)` and `h(λ)`), and the failure is preceded
+by measurable critical-slowing-down signatures usable as an early-warning monitor.
+
+---
+
+## 2. Research Question
+
+Can alignment dynamics be modelled as a variational free-energy minimization in which narrow
+misalignment interventions induce phase transitions, such that (i) a critical threshold `λ*`
+separates robust alignment (null result) from emergent misalignment (EM); (ii) the *order* of
+the transition (continuous vs catastrophic jump) is predictable; and (iii) the framework
+predicts which intervention regimes give a null result vs a sudden behavioural collapse, with
+quantitative early-warning precursors?
+
+**Why it matters / gap filled.** Empirical AI-safety work (Betley 2025; Wang/OpenAI 2025;
+Soligo–Turner 2026; Nghiem 2026) shows narrow finetuning *sometimes* causes broad misalignment
+and *sometimes* does not, with **no predictive theory** and **no use of phase-transition,
+bifurcation, criticality, or free-energy language**. The mathematical machinery (Kuehn 2011
+tipping points; Ma–Wang 2008 dynamic transitions for gradient flows; Friston 2021 FEP) exists
+but **has never been applied to alignment**. This work supplies the missing dictionary and the
+theorems it implies.
+
+---
+
+## 3. Definitions and Notation
+
+(Full version in `definitions.md`.)
+
+- **m ∈ ℝ** — misalignment order parameter (internal-state coordinate `μ` of the FEP); `m=0`
+  aligned, `|m|` large misaligned. Physical observable is `|m|`; `m∈ℝ` exposes the pitchfork
+  symmetry.
+- **λ ≥ 0** — intervention strength (malicious-data fraction, training step, LoRA rank, …);
+  Kuehn's slow variable, Ma–Wang's `λ`.
+- **h ∈ ℝ** — explicit misalignment bias field (asymmetry/direction of the intervention).
+- **F(m; a, h) = ¼ b m⁴ + ½ a m² − h m**, `b>0`. **a(λ)=a₀−cλ** (stiffness, `c>0,a₀>0`);
+  **h(λ)=h₀+eλ** (bias).
+- **Gradient flow** `ṁ = −∂F/∂m = −(b m³ + a m − h)`; **SDE** `dm = −F'(m) dt + σ dW`.
+- **Curvature/Hessian** `H(m) = F''(m) = 3 b m² + a`; equilibrium `m_e` stable iff `H(m_e)>0`;
+  **recovery rate** `α(λ)=H(m_a)`; **Lyapunov exponent** `Λ = −H(m_e)`.
+- **Cited prior results** (statements in `literature_review.md`): **Thm A** Kuehn
+  bifurcation classification (fold/subcritical = catastrophic; supercritical = continuous);
+  **Thm B** Ma–Wang gradient sign criterion; **Thm C** Friston free-energy lemma
+  (`ṁ=−F'`, `F` Lyapunov); **Thm D** Kuehn early-warning (`Var→σ²/2α`, autocorr `e^{−α|τ|}`);
+  **Thm E** Kuehn noise/timescale (`σ≫√ε` ⇒ premature transition); **Thm F** Aguilera
+  blanket caveat.
+
+---
+
+## 4. Statement of Results
+
+> **Theorem 1 (Alignment as a free-energy gradient flow).** Under the FEP free-energy lemma
+> (Thm C), the expected internal dynamics of the alignment order parameter are the gradient
+> descent `ṁ = −∂F/∂m` on a variational free energy `F`, and `F` is a Lyapunov function for the
+> deterministic flow: `dF/dt ≤ 0`, with equality only at equilibria.
+
+> **Proposition 1 (Microscopic origin of the cusp).** Let the post-intervention generative
+> model be the mixture `p(z) ∝ (1−λ)N(z;0,s²) + (λ/2)[N(z;+μ,s²)+N(z;−μ,s²)]` (symmetric) or
+> `(1−λ)N(z;0,s²) + λN(z;+μ,s²)` (biased). Then the FEP free energy `F(m) = −log p(m)`, Taylor
+> expanded to fourth order about `m=0`, is the cusp normal form `¼ b m⁴ + ½ a(λ)m² − h(λ)m`
+> with `a(λ)` decreasing in `λ` (alignment destabilizes), `b>0` near threshold, and `h(λ)=0`
+> in the symmetric case, `h(λ)>0` in the biased case.
+
+> **Theorem 2 (Existence and uniqueness of a critical threshold).** For `F=¼bm⁴+½a(λ)m²` (the
+> symmetric case `h≡0`) with `a(λ)=a₀−cλ`, `a₀,c,b>0`: the aligned equilibrium `m=0` is
+> asymptotically stable iff `λ<λ* := a₀/c`, marginally stable (Jacobian eigenvalue `=0`) at
+> `λ*`, and unstable for `λ>λ*`. `λ*` is the unique such threshold.
+
+> **Theorem 3 (Order of the symmetric transition — continuous pitchfork).** At `λ*` the system
+> undergoes a pitchfork bifurcation. Since the leading reduced nonlinearity has coefficient
+> `b>0`, the pitchfork is **supercritical**: for `λ>λ*` two stable misaligned branches
+> `m = ±√(−a(λ)/b) = ±√(c(λ−λ*)/b)` emerge **continuously** from `0`, with
+> Hessian `H=−2a(λ)>0` (stable) and mean-field critical exponent `β=1/2`. By Ma–Wang (Thm B)
+> and Kuehn (Thm A) this is a **Type-I continuous, non-catastrophic** transition. If instead
+> the effective quartic were `b<0`, the pitchfork is subcritical ⇒ **Type-II jump
+> (catastrophic)**.
+
+> **Theorem 4 (Biased transition — cusp fold / catastrophic jump with hysteresis).** For
+> `h≠0` the pitchfork unfolds. The fold (saddle-node) locus, where two equilibria of
+> `bm³+am−h=0` merge, is exactly
+> `27 b h² + 4 a³ = 0` (with `a<0`), equivalently the vanishing of the cubic discriminant
+> `−b(4a³+27bh²)`. Inside the cusp (`27bh²+4a³<0`) there are three equilibria (two stable, one
+> saddle): the system is **bistable**, exhibits **hysteresis**, and crossing the fold produces
+> a **discontinuous jump** (Kuehn Thm A, catastrophic). Outside, a single equilibrium (smooth).
+> Hence: **symmetric intervention ⇒ continuous (gradual-LoRA regime); biased intervention ⇒
+> catastrophic jump (full-finetune regime).**
+
+> **Theorem 5 (Early-warning laws / critical slowing down).** For the SDE `dm=−F'(m)dt+σdW`
+> linearized at the aligned equilibrium, fluctuations are Ornstein–Uhlenbeck with rate
+> `α(λ)=F''(m_a)`. The stationary variance is `Var(m)=σ²/(2α(λ))` and the lag-`τ`
+> autocorrelation `ρ(τ)=e^{−α(λ)τ}`. As `λ→λ*`, `α(λ)→0`, so **both the variance and the
+> autocorrelation time `1/α` diverge** (Kuehn Thm D). The recovery exponent is `p=1`
+> (pitchfork, `α∼(λ*−λ)`) or `p=1/2` (fold, `α∼(λ_fold−λ)^{1/2}`).
+
+> **Corollary 6 (Two-region phase diagram & predictive classification).** The `(λ,h)` plane
+> partitions into a **robust-alignment** region (single equilibrium) and an **emergent-
+> misalignment** region (bistable/jump), separated by the cusp boundary of Thm 4. The
+> deterministic predictor "EM iff `λ>λ*` (resp. inside the cusp)" classifies stochastic
+> outcomes; near `λ*` noise-induced transitions (Thm E, `σ≫√ε`) blur the boundary, bounding the
+> achievable classification accuracy.
+
+---
+
+## 5. Proofs
+
+**Theorem 1.** By the Friston free-energy lemma (Thm C, Friston–Da Costa–Parr 2021), under a
+Markov-blanket partition at NESS the expected internal flow is `μ̇=(Q−Γ)∇_μF`; projecting onto
+the 1-D alignment coordinate and absorbing the positive mobility into time, `ṁ=−∂F/∂m`. Then
+`dF/dt = F'(m)·ṁ = −(F'(m))² ≤ 0`, with equality iff `F'(m)=0` (an equilibrium). Since `F` is
+bounded below (`b>0` ⇒ `F→+∞` as `|m|→∞`), it is a Lyapunov function and trajectories converge
+to equilibria. ∎
+
+**Proposition 1.** With `q(z)=δ(z−m)` the FEP free energy reduces to `F(m)=−log p(m)` up to an
+`m`-independent entropy constant. Expanding `−log[(1−λ)N(m;0)+ (λ/2)(N(m;μ)+N(m;−μ))]` to
+`O(m⁴)`: by evenness all odd coefficients vanish, so `h≡0` and the cubic term is `0`; the
+quadratic coefficient `a(λ)=F''(0)` decreases monotonically and **crosses zero** as weight
+moves to the `±μ` modes, while the quartic coefficient `b` is `>0` at the crossing. In the
+single-mode (biased) case evenness is broken, producing `−F'(0)=h(λ)>0`. These are exactly the
+cusp coefficients. *Computational verification (SymPy):* with `s=1, μ=3/2`, the symmetric case
+yields `h≡0`, cubic `≡0`, `a(λ)` crossing zero at `λ*=0.711` with `b(λ*)=+0.125>0`; the biased
+case yields `h(λ)>0` on `(0,1)` (script `src/e1_microscopic_derivation.py`,
+`results/e1_microscopic.json`). ∎
+
+**Theorem 2.** With `h=0`, `F'(m)=m(bm²+a)`, so `m=0` is always an equilibrium. The Jacobian of
+the flow at `m=0` is `−F''(0)=−a(λ)`. Linear stability requires `−a(λ)<0`, i.e. `a(λ)>0`, i.e.
+`a₀−cλ>0`, i.e. `λ<a₀/c=:λ*`. At `λ*`, `a=0` and the eigenvalue is `0` (marginal); for `λ>λ*`,
+`a<0` and `m=0` is unstable. Uniqueness of `λ*` follows from `a(λ)` being strictly decreasing
+(`c>0`). *Verified symbolically:* `F''(0)=a` (script `src/e2_transition_order.py`). ∎
+
+**Theorem 3.** For `λ>λ*` (so `a<0`), `F'(m)=0` gives `m=0` and `m=±√(−a/b)` (real because
+`−a/b>0`). The curvature at the nonzero branches is `F''(±√(−a/b)) = 3b(−a/b)+a = −2a > 0`, so
+both are stable, while `m=0` (`F''=a<0`) is unstable: a supercritical pitchfork. The amplitude
+`|m|=√(−a/b)=√(c(λ−λ*)/b)` vanishes continuously as `λ↓λ*` with exponent `β=1/2`. By the
+Ma–Wang gradient criterion (Thm B), reducing the flow at threshold to `ṁ=−bm³+O(m⁵)` with
+potential quartic coefficient `+b>0` gives a **continuous** transition; Kuehn's classification
+(Thm A) labels the supercritical pitchfork non-catastrophic. The sign flip `b<0` would make the
+nearby branches unstable/absent (subcritical) ⇒ a catastrophic jump — the decisive distinction.
+*Verified symbolically:* equilibria `[0, ±√(−a/b)]`, branch curvature `−2a`
+(`src/e2_transition_order.py`). ∎
+
+**Theorem 4.** Equilibria solve `g(m):=bm³+am−h=0`; a fold occurs where additionally
+`g'(m)=3bm²+a=0`. Eliminating `m` (resultant), SymPy returns
+`resultant_m(F',F'') = b²(4a³+27bh²)`, whose zero set is `27bh²+4a³=0` (the cusp curve); the
+cubic discriminant is `−b(4a³+27bh²)`, positive (three real equilibria) iff `27bh²+4a³<0`.
+Inside this wedge (`a<0`, `|h|<√(−4a³/27b)`) there are two stable minima and one saddle —
+bistability — so an adiabatic increase of the control across the fold boundary causes the
+occupied minimum to vanish and the state to jump to the distant minimum (saddle-node /
+catastrophic, Kuehn Thm A); reversing the control the other minimum persists metastably until
+the opposite fold, giving **hysteresis**. *Verified:* sample counts (3 equilibria inside, 1
+outside) and the exact resultant (`src/e2_transition_order.py`); numerically the hysteresis
+jumps occur at `h=±0.180` for `a=−0.6`, matching the analytic `±h_c=±0.179`
+(`src/e3_bifurcation_numerics.py`, `results/e3_bifurcation.json`). ∎
+
+**Theorem 5.** Linearizing `dm=−F'(m)dt+σdW` about `m_a` with `δ=m−m_a`:
+`dδ=−α δ dt+σ dW`, `α=F''(m_a)>0`. This Ornstein–Uhlenbeck process has stationary law
+`N(0,σ²/2α)` (so `Var=σ²/2α`) and `E[δ_τδ_0]=(σ²/2α)e^{−ατ}` (Kuehn Thm D). As `λ→λ*`,
+`m_a→0` and `α→a(λ)→0⁺`, so `Var→∞` and `1/α→∞`. The recovery exponent follows from
+`α∼(λ*−λ)` (pitchfork) or, at a fold where `F''` vanishes like a square root in the control,
+`α∼(λ_fold−λ)^{1/2}`. *Verified numerically:* across `a∈{1.0,…,0.08}` the measured variance
+tracks `σ²/2α` away from threshold and the exact Boltzmann variance to 8% throughout, the
+autocorrelation time grows from 0.94 to 7.5 tracking `1/α` (1→12.5), and the simulated
+stationary law matches `∝e^{−2F/σ²}` to **JS = 6×10⁻⁴ nats**
+(`src/e4_early_warning_sde.py`, `results/e4_early_warning.json`). ∎
+
+**Corollary 6.** Immediate from Thms 2–4 (region boundaries) and Thm 5/Thm E (stochastic
+blurring). *Verified:* phase diagram `figures/e3_phase_diagram.png`; classification ROC-AUC =
+0.996 over 240 SDE configs (`src/e5_calibration_prediction.py`). ∎
+
+---
+
+## 6. Computational Verification (summary of results)
+
+All scripts in `src/`, outputs in `results/*.json` and `figures/*.png`. Reproduce with
+`python src/run_all.py`. Environment: Python 3.12.8, NumPy 2.5.0, SciPy 1.18.0, SymPy 1.14.0,
+Matplotlib 3.11.0; CPU-only; seeds fixed (0/7/42).
+
+| Experiment | Claim verified | Key result |
+|---|---|---|
+| **E1** microscopic derivation (SymPy) | Prop. 1 — cusp emerges from FEP mixture | symmetric: `h≡0`, cubic`≡0`, `a` crosses 0 at `λ*=0.711`, `b(λ*)=+0.125>0` (pitchfork); biased: `h(λ)>0` (cusp) |
+| **E2** transition order (SymPy) | Thms 2–4 — threshold, order, cusp set | `F''(0)=a`; branches `±√(−a/b)`, curvature `−2a`; `resultant_m(F',F'')=b²(4a³+27bh²)` (exact) |
+| **E3** bifurcation numerics (SciPy) | Thms 2–4 — diagrams, phase map, hysteresis | symmetric `λ*=0.5`; hysteresis jumps `±0.180` vs analytic `±h_c=±0.179` (<1% err) |
+| **E4** early-warning SDE (SciPy) | Thm 5 — critical slowing, attractors | Var & autocorr-time diverge as `a→0`; Lyapunov `Λ=−2` (wells), `+1` (barrier); Boltzmann JS = 6×10⁻⁴ nats |
+| **E5** calibration & prediction | Cor. 6 — universality, lead, metrics | collapse `R²=1.000`; early-warning lead `Δλ=0.125`; **ROC-AUC=0.996**, threshold **MAE=0.056** |
+
+**Figures.** `e3_bifurcation_diagrams.png` (pitchfork vs fold), `e3_phase_diagram.png`
+(two-region map with analytic cusp curve), `e3_hysteresis.png` (loop with folds at `±h_c`),
+`e4_early_warning.png` (variance & autocorrelation divergence), `e4_boltzmann.png` (stationary
+law vs Boltzmann), `e5_data_collapse.png` (two domains → one universal curve),
+`e5_classification.png` (predicted vs realized transition, AUC).
+
+### Evaluation metrics (as requested in the task spec)
+- **Threshold MAE** (predicted `λ*` vs realized 50%-transition over SDE configs): **0.056**.
+- **ROC-AUC** (null vs emergent misalignment): **0.996**; accuracy at predicted threshold 0.925.
+- **Lyapunov exponents**: aligned/misaligned wells `Λ=−2` (contracting attractors), barrier
+  `Λ=+1` (repeller) — quantifies attractor stability.
+- **Jensen–Shannon divergence** (predicted Boltzmann vs simulated `m`-distribution): **6×10⁻⁴
+  nats** — the predicted stationary law is the realized one.
+
+---
+
+## 7. Discussion
+
+**The cusp unifies the two empirical regimes.** The literature's central puzzle — narrow
+finetuning sometimes causes broad misalignment (sudden, full-FT) and sometimes does not, or does
+so gradually (LoRA) — is, in this framework, *one* two-parameter family. The decisive variable
+is the **symmetry/bias `h` of the intervention**: a rank-deficient/orthogonal (symmetric)
+intervention rides the pitchfork axis and produces a **continuous** onset (matching the gradual
+LoRA drift, Nghiem 2026), whereas a directionally biased (full-finetune) intervention crosses a
+**fold** and produces a **catastrophic jump with hysteresis** (matching the sudden full-FT
+saturation and the basin-collapse of Soligo–Turner 2026). This is exactly the literature's open
+question — *"the order may itself depend on the intervention regime"* — now given a mechanism.
+
+**Recovering empirical regularities.** (i) The **threshold dose–response** (behavioural EM ≈ 0
+until 25–75% malicious data, then steep rise; Wang 2025) is the `m=√((λ−λ*)/λ*)` branch above
+`λ*`. (ii) The **internal latent leading behaviour** (toxic-persona latent crosses at ~5% while
+behaviour jumps at ~25%) is Thm 5: the variance/early-warning signal of the *internal* order
+parameter rises (here doubling at `λ≈0.125`) before the *behavioural* observable departs zero
+at `λ*=0.25` — a lead of `Δλ≈0.125`. (iii) The **disparate thresholds across domains** (25% vs
+75%) **collapse** onto a single normal-form curve under `λ→λ/λ*`, predicting a universality
+class. (iv) **Hysteresis** explains why remediation needs benign data and does not retrace the
+onset path (reversible at a *different* point; Wang 2025).
+
+**Defeating the "mirage" objection.** The abruptness here is **intrinsic to `F`** (a genuine
+saddle-node / loss of a minimum), not an artifact of thresholding a smooth metric (Schaeffer;
+Wei 2022): the order parameter `m` is a *smooth internal* coordinate and the jump is a topological
+change in the equilibrium set, independently confirmed by hysteresis and bimodality.
+
+**Comparison to prior values.** The hysteresis fold matches the analytic `h_c` to <1%; the OU
+variance law matches simulation to 8% (the residual is the *predicted* quartic rounding of the
+divergence near criticality, captured exactly by the Boltzmann variance); the stationary law
+matches Boltzmann to 6×10⁻⁴ nats. These are consistency checks of the theory against its own
+simulation, not fits to external data.
+
+---
+
+## 8. Limitations
+
+1. **Calibration is to reported summary statistics, not raw data.** The empirical EM papers
+   publish thresholds and percentage order-parameter changes, not per-sample trajectories. The
+   data-collapse `R²=1.000` is therefore a *consistency* statement (two reported thresholds are
+   compatible with one normal form), **not** a fit to raw dose–response curves; confirming the
+   universality class requires the underlying datasets.
+2. **One-dimensional order parameter.** We reduce to a scalar `m`. Real models have
+   high-dimensional internal states; the reduction is justified by the empirically observed
+   rank-1 / `|PC1|` dominance (Nghiem 2026; Minder 2026) but is an approximation (center-manifold
+   reduction is exact only locally).
+3. **Quasi-gradient / quasi-equilibrium assumption.** Thm 1 uses the FEP gradient form; out of
+   equilibrium the Markov blanket can degrade near criticality (Aguilera Thm F: `I(x;y|b)` peaks
+   at the critical point). We restrict to the quasi-gradient regime and flag `I(x;y|b)` as an
+   additional candidate early-warning signal rather than modelling blanket dissolution.
+4. **`F` identifiable only up to solenoidal flow.** The FEP flow has a divergence-free part `Q`
+   that does not affect the stationary density; we analyse the symmetric (gradient) part, which
+   governs the transition, but `Q` could affect *transient* approach times.
+5. **Mean-field exponents.** `β=1/2`, OU early-warning, and the cusp are mean-field/Landau
+   predictions; genuine finite-size or fluctuation-dominated corrections (cf. Wang 2026's `D=1`
+   dimensional criticality) are not modelled.
+
+---
+
+## 9. Open Questions
+
+- **Predict `λ*` a-priori from model internals.** Can the critical malicious fraction be read
+  off the Hessian curvature `H=∇²ℑ` (basin flatness/efficiency gap, Soligo–Turner 2026) *before*
+  training, rather than calibrated post hoc?
+- **Universality class.** Is the misalignment-onset collapse truly mean-field (`β=1/2`), or does
+  it carry the non-trivial exponents / `D=1` criticality reported for grokking (Wang 2026)?
+- **Blanket dissolution as order parameter.** Does `I(x;y|b)` (Aguilera Thm F) rise at the
+  alignment critical point, and does it outperform variance/autocorrelation as an early warning?
+- **Measuring `h`.** Can the bias field `h` (predicting continuous-vs-catastrophic) be estimated
+  from the rank-1 finetuning direction's alignment with the misalignment axis (Minder 2026)?
+- **Higher-codimension catastrophes.** Do multiple simultaneous interventions realise the
+  butterfly/swallowtail catastrophes (extra metastable "personas")?
+
+---
+
+## 10. Conclusions
+
+We answer the research question affirmatively and constructively: **alignment dynamics admit a
+variational free-energy gradient-flow model whose universal reduction is the cusp catastrophe**,
+in which (i) a critical threshold `λ*` provably separates robust alignment from emergent
+misalignment (Hessian eigenvalue crossing, Thm 2); (ii) the transition is **continuous** for
+symmetric interventions and a **catastrophic jump with hysteresis** for biased ones (Thms 3–4),
+unifying the gradual-LoRA and sudden-full-FT regimes in one normal form; and (iii) the framework
+**predicts** null-vs-EM outcomes (ROC-AUC 0.996, threshold MAE 0.056) and supplies a
+**critical-slowing-down early-warning law** in which the internal order parameter leads the
+behavioural failure (Thm 5). The contribution is the explicit, theorem-backed dictionary between
+the Free Energy Principle, critical-transition theory, and emergent misalignment — turning an
+empirical surprise into an a-priori, monitorable risk calculation. Follow-up should estimate the
+landscape parameters `(a₀,c,h)` directly from model internals to make the threshold prediction
+operational on real training runs.
+
+---
+
+## 11. References
+
+1. Betley et al. (2025). *Emergent Misalignment: Narrow finetuning can produce broadly
+   misaligned LLMs.* arXiv:2502.17424.
+2. Wang et al. / OpenAI (2025). *Persona Features Control Emergent Misalignment.* arXiv:2506.19823.
+3. Soligo, Turner, Rajamanoharan, Nanda (2026). *EM Is Easy, Narrow Misalignment Is Hard.*
+   arXiv:2602.07852.
+4. Costa, Vicente (2026). *Persona-Model Collapse in Emergent Misalignment.* arXiv:2605.12850.
+5. Nghiem et al. (2026). *Trait-space Monitoring for EM during SFT.* arXiv:2606.07631.
+6. Minder et al. (2026). *Narrow Finetuning Leaves Readable Traces.* arXiv:2510.13900.
+7. Kuehn (2011). *A mathematical framework for critical transitions: bifurcations, fast-slow
+   systems and stochastic dynamics.* arXiv:1101.2899.
+8. Ma, Wang (2008). *Cahn–Hilliard equations and phase transition dynamics.* arXiv:0806.1286.
+9. Friston, Da Costa, Parr (2020/21). *Some interesting observations on the FEP.* arXiv:2002.04501.
+10. Aguilera et al. (2022). *Knitting a Markov blanket is hard out of equilibrium.* arXiv:2207.12914.
+11. Clauw, Stramaglia, Marinazzo (2024). *Grokking as an information-theoretic phase transition.*
+    arXiv:2408.08944.
+12. Wang (2026). *Grokking as a dimensional phase transition.* arXiv:2604.04655.
+13. Wei et al. (2022). *Emergent Abilities of Large Language Models.* arXiv:2206.07682.
+14. Tools: SymPy 1.14.0, NumPy 2.5.0, SciPy 1.18.0, Matplotlib 3.11.0.
+
+
+════════════════════════════════════════════════════════════════════════════════
+                            RESEARCH PLAN
+════════════════════════════════════════════════════════════════════════════════
+
+# Planning — Phase Transitions in AI Alignment via the Free Energy Principle
+
+## Research Question
+Can AI alignment dynamics be modeled as a variational free-energy (FEP) gradient flow in
+which a narrow misalignment intervention of strength `λ` induces a **phase transition** in
+the energy landscape? Specifically: (i) does a critical threshold `λ*` exist separating
+robust alignment (null result) from emergent misalignment (EM); (ii) what *order* is the
+transition (continuous vs catastrophic jump); and (iii) can the framework **predict** which
+intervention regimes give a null result vs a sudden behavioral collapse, with quantitative
+early-warning precursors?
+
+## Motivation & Novelty Assessment
+
+### Why This Research Matters
+Empirical AI-safety work (Betley 2025; Wang/OpenAI 2025; Soligo–Turner 2026; Nghiem 2026)
+shows narrow finetuning *sometimes* causes broad misalignment and *sometimes* does not, with
+no predictive theory. A mathematical framework that predicts *when* an alignment intervention
+catastrophically fails — and provides measurable early-warning signals before the failure — is
+directly safety-relevant: it converts a post-hoc empirical surprise into an a-priori
+risk calculation.
+
+### Gap in Existing Work
+The literature splits cleanly. The empirical EM papers document threshold dose–response
+curves, trajectory bifurcations, low-rank order parameters, and basin-of-attraction behavior
+— but **none use the language of phase transitions, bifurcation theory, criticality, or free
+energy**. The mathematical papers (Kuehn 2011 tipping points; Ma–Wang 2008 dynamic
+transitions for gradient flows; Friston 2021 FEP) supply exactly that machinery but **never
+touch alignment**. No existing model unifies them.
+
+### Our Novel Contribution
+1. An explicit **variational free energy `F(m;λ,h)`** for an alignment order parameter `m`,
+   *derived* (not merely posited) from a two-component generative mixture in the FEP
+   formalism, whose Landau coefficients carry the `λ`-dependence.
+2. A theorem that the aligned→misaligned transition is governed by the **cusp catastrophe**
+   `F = ¼ b m⁴ + ½ a(λ) m² − h(λ) m`, which **unifies both empirical regimes in one
+   two-parameter family**: the symmetric axis (`h≈0`) gives a *continuous* supercritical
+   pitchfork (the gradual-LoRA regime), while the biased branch (`h≠0`) gives a *catastrophic
+   fold/jump with hysteresis* (the sudden full-finetune regime). This answers the literature's
+   open question "the order may itself depend on the intervention regime."
+3. Closed-form **critical thresholds**, **critical exponents**, and **early-warning laws**
+   (variance and autocorrelation divergence), with a **data-collapse / universality** claim
+   that the disparate empirical thresholds (25% vs 75% malicious fraction) are the *same*
+   normal form rescaled by `λ*`.
+
+### Experiment (computational-verification) Justification
+- **E1 Microscopic derivation (SymPy):** show the Landau coefficients `a(λ), h(λ), b` emerge
+  from a generative mixture free energy — grounds the model, defeats the "ad hoc potential"
+  objection.
+- **E2 Transition order (SymPy):** verify the stability/sign criterion (Ma–Wang Thm B,
+  Kuehn Thm A) and the cusp bifurcation set `27 b h² + 4 a³ = 0` symbolically.
+- **E3 Bifurcation numerics (NumPy/SciPy):** continuation of equilibrium branches, Jacobian
+  eigenvalues, the `(λ,h)` phase diagram, and hysteresis loop — verifies Theorems 2–4.
+- **E4 Early-warning SDE (SciPy):** integrate `dm=−F'dt+σdW`, confirm `Var→σ²/2α`,
+  rising autocorrelation, critical slowing, Lyapunov exponents, and JS divergence between the
+  simulated stationary law and the Boltzmann form `∝e^{−2F/σ²}` — verifies Theorem 5.
+- **E5 Calibration & prediction (SciPy/sklearn-free):** fit `(a₀,c)` to the reported
+  dose–response thresholds, report MAE on threshold prediction, ROC-AUC for null-vs-EM
+  classification against SDE-generated ground truth, and the data collapse — addresses the
+  methodology's evaluation metrics.
+
+## Hypothesis Decomposition
+- H1 (existence): ∃ `λ*` with aligned minimum stable for `λ<λ*`, unstable for `λ>λ*`
+  (Hessian eigenvalue crosses zero). **Testable:** E2, E3.
+- H2 (order): the transition order is set by the sign of the leading reduced nonlinearity and
+  by the bias `h`; symmetric ⇒ continuous, biased ⇒ catastrophic jump. **Testable:** E2–E4.
+- H3 (prediction): the framework classifies null vs EM outcomes and predicts thresholds with
+  low error; disparate empirical thresholds collapse to one normal form. **Testable:** E5.
+- H4 (early warning): variance and autocorrelation of `m` diverge as `λ→λ*`. **Testable:** E4.
+
+## Proposed Methodology
+### Approach
+Model alignment as a 1-D variational free-energy gradient flow (FEP, Friston Thm C), reduce
+the transition to the universal cusp normal form, classify it with the gradient
+dynamic-transition theorem (Ma–Wang Thm B) and tipping-point classification (Kuehn Thm A),
+and verify every analytic claim symbolically (SymPy) and numerically (SciPy SDE).
+
+### Baselines / comparison
+- The empirical regularities themselves (25–75% thresholds, step-40 trajectory divergence,
+  latent-leads-behavior, gradual-LoRA vs sudden-full-FT kinetics) are the targets to recover.
+- A naive **linear/logistic** dose–response (no bistability) as a null model the cusp must
+  beat on the hysteresis and bimodality predictions.
+
+### Evaluation Metrics (from the task spec)
+- MAE between predicted and reported critical intervention strengths.
+- ROC-AUC for null vs EM classification (vs SDE ground truth with finite noise/time).
+- Lyapunov exponents of aligned vs misaligned attractors.
+- Jensen–Shannon divergence between predicted (Boltzmann) and simulated `m`-distributions.
+
+### Statistical Analysis Plan
+Numerical checks use fixed seeds; OU-variance law confirmed within tolerance (~5–10%) across
+≥4 control values; ROC-AUC over a grid of ≥200 intervention configs; report agreement
+percentages and absolute errors rather than p-values (this is a modeling/verification study).
+
+## Expected Outcomes
+Support: a clean `λ*`, supercritical-pitchfork continuous branch, fold/hysteresis under bias,
+diverging variance/autocorrelation, AUC ≫ 0.5, low threshold MAE, successful data collapse.
+Refute: no eigenvalue crossing, variance not diverging, or the cusp failing to separate
+null/EM outcomes better than the linear null model.
+
+## Timeline (≤60 min)
+Setup/read (done) → definitions (5m) → E1–E2 symbolic (12m) → E3 numerics (12m) →
+E4 SDE (12m) → E5 calibration (8m) → REPORT/README (10m). Buffer absorbed by reusing the
+existing `verify_transition_order.py` style.
+
+## Potential Challenges
+- Only *summary statistics* (thresholds, % changes) are available, not raw datasets →
+  calibration is to reported summaries; stated honestly as a limitation.
+- "Mirage" objection (abruptness as metric artifact) → use a *smooth internal* order parameter
+  `m`; the bistability/hysteresis is intrinsic to `F`, not a thresholded metric.
+- Out-of-equilibrium Markov-blanket dissolution (Aguilera Thm F) → restrict to the
+  quasi-gradient regime; flag as scope limit.
+
+## Success Criteria
+All four sub-hypotheses (H1–H4) verified symbolically and numerically with agreement to
+stated tolerances, the two-regime unification demonstrated, and the evaluation metrics
+computed on calibrated/simulated data.
+
+
+════════════════════════════════════════════════════════════════════════════════
+                          LITERATURE REVIEW
+════════════════════════════════════════════════════════════════════════════════
+
+# Literature Review
+## Phase Transitions in AI Alignment: A Free Energy Principle Framework for Predicting Emergent Misalignment
+
+### Research Area Overview
+
+The project proposes a **mathematical** model in which AI alignment dynamics are a
+variational free-energy minimization process, and narrow misalignment interventions
+(e.g. finetuning on a small malicious dataset) induce **phase transitions** in the
+system's energy landscape. The hypothesis predicts two qualitatively distinct regions
+of parameter space — *robust alignment* (null result) and *abrupt emergent
+misalignment* (sudden behavioral shift) — separated by a **critical threshold**.
+
+The literature divides cleanly into two bodies that this project aims to bridge:
+
+1. **Empirical AI-safety work on emergent misalignment (EM)** (Cluster A/B). A purely
+   empirical phenomenon discovered in 2025: narrow finetuning produces *broad*
+   misalignment. The papers independently document threshold dose–response curves,
+   trajectory bifurcations during training, low-dimensional/rank-1 order parameters, and
+   basin-of-attraction behavior — but **none of them use the language of phase
+   transitions, criticality, bifurcation theory, or free energy.** Supplying that
+   mathematical lens is the project's novel contribution.
+
+2. **Mathematical theory of critical transitions and the Free Energy Principle**
+   (Cluster C/D). Bifurcation theory of fast-slow systems (Kuehn), dynamic transition
+   theory for gradient flows (Ma–Wang), the FEP/variational-free-energy formalism
+   (Friston), and phase-transition treatments of learning (grokking, emergent abilities).
+   These provide the order parameters, critical-threshold criteria, and early-warning
+   machinery to formalize body (1).
+
+---
+
+### Key Definitions
+
+**Definition 1 (Variational free energy, Friston et al. 2021).**
+For a system with a Markov-blanket partition of states `x = (η, s, a, μ)` (external,
+sensory, active, internal) and a variational density `q(η)` parameterized by the internal
+states `μ`,
+```
+F(b, μ) = E_q[ℑ(b, μ)] − H[q]                                    (energy − entropy)
+        = ℑ(b) + D_KL[ q(η) ‖ p(η|b) ]                           (surprisal + bound ≥ 0)
+        = E_q[−ln p(b|η)] + D_KL[ q(η) ‖ p(η) ]                  (inaccuracy + complexity)
+```
+where `ℑ(x) = −ln p(x)` is **surprisal**. `F` is an upper bound on surprisal (the ELBO)
+and a **Lyapunov function** for the expected flow of autonomous states.
+
+**Definition 2 (NESS flow / Helmholtz decomposition, Friston et al. 2021).**
+A system at nonequilibrium steady state obeys
+```
+ẋ = f(x) + ω,   f(x) = (Γ + Q(x)) ∇(−ℑ(x)),
+```
+with `Γ` the (symmetric) diffusion tensor, `Q = −Qᵀ` the solenoidal (divergence-free)
+operator. Flow = dissipative gradient descent on surprisal + conservative circulation.
+The Jacobian–Hessian link `J = ∇f = (Γ+Q)H` with `H = ∇²ℑ` ties dynamics to the curvature
+of the surprisal landscape.
+
+**Definition 3 (Fast-slow system & critical manifold, Kuehn 2011).**
+`x' = f(x,y), y' = εg(x,y)`, `0 < ε ≪ 1`, with `x` fast, `y` slow (the slowly-drifting
+intervention/control parameter). The **critical manifold** is `C = {(x,y): f(x,y)=0}`. `C`
+is **normally hyperbolic** at `p` if all eigenvalues of `D_x f(p)` have nonzero real part.
+
+**Definition 4 (Critical transition / tipping point, Kuehn 2011, Def. 2.4).**
+A point `p ∈ C` where `C` loses normal hyperbolicity, with a candidate trajectory that
+arrives along an *attracting* sheet and then escapes — i.e. a fast-subsystem bifurcation
+that switches the system from stable slow motion to fast escape to a far attractor.
+Characteristic precursors: slow recovery, increasing variance, increasing autocorrelation.
+
+**Definition 5 (Recovery exponent, Kuehn 2011, Def. 2.9).**
+Near an attracting sheet, perturbations decay like `exp(λ_u t)` with leading exponent
+`λ_u < 0`; if `λ_u = O(y^α)` then `α` is the recovery exponent. Fold: `α = 1/2`;
+Hopf/pitchfork/transcritical: `α = 1`.
+
+**Definition 6 (Dynamic transition trichotomy, Ma–Wang 2008, Thm A.1).**
+For `du/dt = L_λ u + G(u,λ)` satisfying the principal-eigenvalue (PES) crossing condition,
+a transition at `λ₀` is exactly one of: **Type-I Continuous** (`limsup‖u_λ‖ → 0`),
+**Type-II Jump/Discontinuous** (`limsup‖u_λ‖ ≥ δ > 0`), or **Type-III Mixed**.
+
+**Definition 7 (Order parameters for misalignment — empirical).**
+- *Moral susceptibility* `S` = mean over questions of cross-persona SD of MFQ ratings;
+  *robustness* `R = 1/σ̄` = inverse mean within-persona SD (Costa–Vicente 2026).
+- *Trait drift* `Δp^(k) = (Δs_1,…,Δs_7)`, the projection of checkpoint-`k` hidden-state
+  drift onto 7 fixed trait directions; the scalar `|PC1|` along the 65.5%-variance axis
+  (Nghiem et al. 2026).
+- *O-information* `Ω_n(Z) = (n−2)H(Z) + Σ_j[H(Z_j) − H(Z\Z_j)]`; sign separates
+  synergy-dominated (`< 0`) from redundancy-dominated (`> 0`) regimes (Clauw et al. 2024).
+- *Effective dimensionality* `D` from finite-size scaling `s_max ~ N^D`; critical value
+  `D = 1` (Wang 2026).
+
+---
+
+### Known Results (prerequisite theorems we will cite)
+
+**Theorem A (Kuehn 2011, Props. 2.5–2.8 — classification of catastrophic bifurcations).**
+A codim-1 equilibrium bifurcation is a critical (catastrophic, jump) transition iff it is:
+fold/saddle-node (`x' = −y − x²`, always); **subcritical** Hopf (`l₁ > 0`); **subcritical**
+pitchfork (`x' = yx + αx³`, `α > 0`); or transcritical. Supercritical Hopf/pitchfork are
+*continuous, non-critical*. → **sub/supercriticality is the decisive distinction.**
+
+**Theorem B (Ma–Wang 2008, Thm A.3 + simple-eigenvalue criterion — order of a gradient
+transition).** For a *gradient/variational* system, the transition at `λ₀` is **continuous
+iff `u = 0` is locally asymptotically stable at `λ₀`**; if the stable set has empty interior
+in the center manifold, the transition is a **jump**. Equivalently, reducing to
+`⟨G(xe₁+Φ, λ₀), e₁*⟩ = αx^k + o(|x|^k)` with `k` odd: `α < 0` ⇒ continuous, `α > 0` ⇒ jump.
+
+**Theorem C (Friston et al. 2021 — free-energy lemma).** Under a Markov-blanket partition
+at NESS, the expected internal flow is `μ̇ = (Q_μμ − Γ_μμ) ∇_μ F`, i.e. gradient descent on
+the variational free energy `F`; `F` is a Lyapunov function and equals surprisal plus a
+non-negative KL bound. Self-organization = free-energy minimization = approximate Bayesian
+inference.
+
+**Theorem D (Kuehn 2011 — early-warning laws).** In the Fenichel normal form the linearized
+fluctuations are Ornstein–Uhlenbeck with stationary variance `Var(x) → σ²/(2α)` and
+autocorrelation `E[x_τ x_s] = (σ²/2α)·exp(−α|τ−s|/ε)`. As the leading rate `α → 0` (approach
+to transition) **both variance and autocorrelation diverge** — critical slowing down.
+
+**Theorem E (Kuehn 2011, Thm 6.1 — noise-vs-timescale scaling).** For a fold, noise-induced
+transitions before the deterministic threshold are unlikely if `σ ≪ √ε`, almost sure if
+`σ ≫ √ε`, intermediate at `σ ≈ √ε` (and `σ ≈ ε^{3/4}` for transcritical/pitchfork).
+
+**Theorem F (Aguilera et al. 2022 — blanket degradation at criticality).** In canonical
+nonequilibrium models (coupled Lorenz, asymmetric kinetic Ising) the conditional mutual
+information `I(x;y|b) = D_KL(p(x,y|b) ‖ p(x|b)p(y|b))` grows monotonically with entropy
+production `σ` and is **most pronounced near the order–disorder critical point**.
+
+**Empirical regularities (to be reproduced/predicted by the model).**
+- Threshold dose–response: behavioral EM ≈ 0 until ~25% (health advice) / ~75% (insecure
+  code) of training data is malicious, then a steep rise; the internal toxic-persona latent
+  crosses threshold at ~5%, *anticipating* the behavioral jump (Wang et al. 2025, Fig. 14).
+- Trajectory bifurcation: secure vs insecure log-prob trajectories coincide for ~40 steps,
+  then diverge (Betley et al. 2025, Figs. 11–12).
+- Basin convergence: lifting a KL constraint makes training fall from the narrow solution
+  into the (flatter, lower-loss) general-misalignment basin (Soligo et al. 2026, Fig. 5).
+- Kinetics: gradual LoRA drift (~60 steps) vs sudden full-finetune saturation (≤10 steps);
+  detector leads the behavioral crossover by +0.8 steps (Nghiem et al. 2026).
+- Order parameters `S` +55%, `1/R` +304% under EM, leaving the entire cross-model normal
+  band (Costa–Vicente 2026); reversible with ~120–200 benign samples (Wang et al. 2025).
+
+---
+
+### Proof Techniques in the Literature
+
+- **Geometric singular perturbation theory** (Fenichel's theorem, slow manifolds, normal
+  forms): the rigorous language for a slowly-driven control parameter crossing a tipping
+  point (Kuehn). Center-manifold reduction collapses the dynamics near the transition to a
+  1–`m` dimensional normal form whose leading nonlinearity decides the transition order.
+- **Dynamic transition theory / attractor bifurcation** (Ma–Wang): spectral PES analysis of
+  `L_λ`, Lyapunov–Schmidt reduction onto eigendirections, and a sign criterion for
+  continuous-vs-jump — *specialized to gradient (free-energy) flows*, exactly our setting.
+- **Helmholtz/Langevin–Fokker–Planck calculus** (Friston; Aguilera): decompose flow into
+  dissipative gradient + solenoidal parts; relate Jacobian (flow) to Hessian (landscape
+  curvature) of `−ln p`; Lyapunov-function convergence arguments.
+- **Stochastic early-warning analysis**: Ornstein–Uhlenbeck variance/autocorrelation,
+  Kramers escape times, large-deviation/sample-path estimates (Kuehn); conditional-MI and
+  entropy-production estimation (Aguilera).
+- **Finite-size scaling & data collapse** (Wang): `s_max ~ N^D`, susceptibility `⟨s⟩ ~ N^γ`,
+  CCDF collapse onto `s/N^D`; self-organized-criticality (OFC sandpile) microdynamics.
+- **Information-theoretic order parameters** (Clauw): O-information via Gaussian-copula
+  entropy estimation; multiplet search for maximally-synergistic sub-networks.
+- **Mechanistic / model-diffing** (Wang-OpenAI; Minder; Nghiem): SAE latents, contrastive
+  mean-difference directions, rank-1 activation-difference projections, causal ablation/
+  steering — the empirical instruments that *measure* the proposed order parameters.
+
+---
+
+### Related Open Problems
+
+- **Order of the alignment transition.** Is emergent misalignment first-order (Type-II
+  jump, hysteretic, with metastable states) or a continuous crossing producing an abrupt
+  behavioral observable? The empirical kinetics differ by method (gradual LoRA vs sudden
+  full-FT), suggesting the *order may itself depend on the intervention regime*.
+- **Predicting the threshold from model internals.** Can the critical malicious-data
+  fraction / training step be predicted *a priori* from the curvature `H = ∇²ℑ` (or the
+  flatness/efficiency gap between basins) rather than measured post hoc?
+- **Universality.** Wang et al. (2025) report different thresholds (25% vs 75%) across
+  domains; is there a scaling collapse (universality class) for misalignment onset?
+- **Mirage caveat.** Following Wei et al. (2022) and Schaeffer et al., is the abruptness an
+  intrinsic transition or a thresholded-metric artifact over a smooth underlying loss?
+- **Blanket dissolution.** Per Aguilera et al., does the aligned "system boundary" itself
+  degrade near the misalignment critical point, and can `I(x;y|b)` serve as an early
+  warning?
+
+---
+
+### Gaps and Opportunities
+
+1. **No existing mathematical model unifies EM with FEP/criticality.** The empirical EM
+   papers stop at "inductive bias / basin"; the math papers never touch alignment. The
+   project's gap-filling contribution is the explicit dictionary below.
+2. **Order parameters exist but are not yet tied to a free-energy potential.** `S`, `1/R`,
+   `|PC1|`, `Ω_n`, `D` are all measured; none is derived as the minimizer/curvature of a
+   variational `F`. Opportunity: posit `F(alignment | θ, λ)` whose Hessian eigenvalue
+   crossing zero reproduces the observed threshold.
+3. **Early-warning signals are under-exploited.** Critical-slowing-down (variance/auto-
+   correlation rise, Theorem D) has not been tested on EM training trajectories, though
+   the trait-drift detector (Nghiem) empirically leads the transition — a natural match.
+
+---
+
+### Recommendations for Proof Strategy
+
+The cleanest rigorous route models alignment as a **gradient (variational) flow on a free
+energy `F`** and applies the **gradient-case dynamic-transition theorem (Theorem B)** to
+classify the transition, with the **fast-slow / bifurcation machinery (Theorems A, D, E)**
+supplying critical thresholds and early-warning predictions.
+
+- **Recommended core construction.** Define a low-dimensional **order parameter** `m`
+  (the misalignment coordinate — identify with `|PC1|` of trait drift or the toxic-persona
+  latent activation) and a **control parameter** `λ` (malicious-data fraction, LoRA rank,
+  training step, or learning rate). Posit a variational free energy / effective potential
+  `F(m; λ)` (e.g. a normal-form `F = ½ a(λ) m² + ¼ b m⁴ + …` for a pitchfork, or a cubic
+  for a fold). Alignment dynamics = gradient descent `ṁ = −∂F/∂m` (Theorem C makes this the
+  expected FEP flow).
+- **Key lemmas to establish.**
+  (i) *Existence of a critical threshold:* `a(λ*) = 0` where the aligned minimum loses
+  stability (eigenvalue of `H = ∇²F` crosses zero) — the analogue of Kuehn's loss of normal
+  hyperbolicity / Ma–Wang's PES crossing.
+  (ii) *Order of the transition:* sign of the leading reduced nonlinearity (`b`, or
+  Ma–Wang's `α`) decides jump (subcritical, `α > 0`) vs continuous (supercritical) — predict
+  *which regime* (LoRA vs full-FT) gives an abrupt catastrophic jump.
+  (iii) *Two-region prediction:* map `λ < λ*` to robust alignment (null result) and
+  `λ > λ*` to emergent misalignment, recovering the empirical dose–response (the 25–75%
+  malicious-fraction onset and the step-40 trajectory divergence).
+  (iv) *Early-warning law:* derive `Var(m) → σ²/(2α(λ))` and rising autocorrelation as
+  `λ → λ*`, giving a predictive precursor to test against the trait-drift detector.
+- **Potential obstacles.** (a) The *mirage* objection — must show abruptness is intrinsic to
+  `F`, not a thresholded metric (use a smooth internal order parameter, per Clauw/Wang).
+  (b) Out-of-equilibrium blanket dissolution (Aguilera, Theorem F) — restrict to a
+  quasi-gradient regime or treat `I(x;y|b)` rise as part of the order parameter.
+  (c) Identifiability of `F` from data — `F` is only defined up to the solenoidal `Q`; use
+  the gradient (symmetric) part for the transition analysis.
+- **Computational support.** Use SymPy to derive normal forms and verify the
+  sign/eigenvalue criteria symbolically; NumPy/SciPy to integrate the SDE `dm = −F'(m)dt +
+  σdW`, locate `λ*` numerically, and confirm the variance/autocorrelation early-warning
+  laws and (for fold/subcritical-pitchfork models) hysteresis. Matplotlib for bifurcation
+  diagrams. See `code/README.md`.
+
+**The dictionary (FEP ↔ critical transitions ↔ emergent misalignment):**
+
+| Math object | FEP (Friston) | Critical transitions (Kuehn / Ma–Wang) | Emergent misalignment (empirical) |
+|---|---|---|---|
+| Potential | variational free energy `F` (Lyapunov) | free energy of gradient flow | loss landscape / basin |
+| Order parameter `m` | internal-state coordinate `μ` | center-manifold amplitude `x` | `|PC1|` trait drift, toxic-persona latent, `S`, `1/R` |
+| Control parameter `λ` | precision / prior over goals | slow variable `y` / `λ` | % malicious data, LoRA rank, training step |
+| Critical threshold | Hessian `H=∇²ℑ` eigenvalue → 0 | loss of normal hyperbolicity / PES crossing | dose–response onset (25–75%); step-40 divergence |
+| Transition order | — | fold / sub- vs super-critical; Type I/II/III | gradual (LoRA) vs sudden (full-FT) kinetics |
+| Early warning | — | `Var→σ²/2α`, autocorr ↑ (crit. slowing) | trait-drift detector leads crossover; latent at 5% |
+| Two regions | high vs low surprisal NESS | sub- vs super-threshold `λ` | robust alignment vs broad misalignment |
+
+
+════════════════════════════════════════════════════════════════════════════════
+                          PAPER REQUIREMENTS
+════════════════════════════════════════════════════════════════════════════════
+
+Generate a complete mathematics paper with the following structure:
+
+1. TITLE
+   - Clear, specific, informative
+   - Should convey the main result or the mathematical objects studied
+   - Mathematical convention: concise and precise
+
+2. AUTHOR
+   - Use this exact author line: NeuriCo
+
+3. ABSTRACT (150-250 words)
+   - State the problem or question investigated
+   - Summarize the main results (theorem statements in words)
+   - Mention proof techniques used
+   - Note any computational verification
+
+4. INTRODUCTION
+   - Mathematical problem and motivation
+   - History and context of the problem
+   - Summary of known results (with citations)
+   - Statement of main contributions (informal preview)
+   - Paper organization
+
+5. PRELIMINARIES
+   - Notation and conventions
+   - Definitions needed for the paper
+   - Prerequisite results (stated with citations, not reproved)
+   - This section ensures the paper is self-contained
+
+6. MAIN RESULTS
+   - Formal theorem statements
+   - Complete proofs
+   - Supporting lemmas and propositions with proofs
+   - Examples illustrating the results
+   - Remarks connecting to other areas
+
+7. DISCUSSION
+   - Implications of the results
+   - Connections to related problems
+   - Open questions and conjectures
+   - Possible generalizations
+
+8. CONCLUSION
+   - Summary of contributions
+   - Future directions
+
+9. REFERENCES
+   - BibTeX format
+   - All cited papers and textbooks
+
+════════════════════════════════════════════════════════════════════════════════
+                          OUTPUT FORMAT
+════════════════════════════════════════════════════════════════════════════════
+
+Create a MODULAR LaTeX project with the following directory structure:
+
+paper_draft/
+├── main.tex              # Main file that imports all sections
+├── references.bib        # BibTeX references
+├── sections/
+│   ├── abstract.tex      # Abstract content
+│   ├── introduction.tex  # Introduction section
+│   ├── preliminaries.tex # Definitions, notation, prerequisites
+│   ├── main_results.tex  # Theorems and proofs
+│   ├── discussion.tex    # Discussion and open questions
+│   └── conclusion.tex    # Conclusion section
+├── figures/              # Directory for any generated figures
+└── appendix/             # Directory for appendix sections (if needed)
+
+INSTRUCTIONS:
+1. First, create the directory structure above (mkdir -p paper_draft/sections paper_draft/figures paper_draft/appendix)
+2. Write main.tex using the AMS document class with proper theorem environments:
+
+   \documentclass{amsart}
+   \usepackage{amsmath,amssymb,amsthm}
+   \usepackage[hidelinks]{hyperref}
+   \usepackage{graphicx}
+   \usepackage{enumitem}
+
+   % Theorem environments
+   \newtheorem{theorem}{Theorem}[section]
+   \newtheorem{lemma}[theorem]{Lemma}
+   \newtheorem{proposition}[theorem]{Proposition}
+   \newtheorem{corollary}[theorem]{Corollary}
+   \newtheorem{conjecture}[theorem]{Conjecture}
+
+   \theoremstyle{definition}
+   \newtheorem{definition}[theorem]{Definition}
+   \newtheorem{example}[theorem]{Example}
+
+   \theoremstyle{remark}
+   \newtheorem{remark}[theorem]{Remark}
+
+   % Import command files (if they exist)
+   \InputIfFileExists{commands/math}{}{}
+   \InputIfFileExists{commands/general}{}{}
+   \InputIfFileExists{commands/macros}{}{}
+
+   % Bibliography style
+   \bibliographystyle{amsplain}
+
+   \author{NeuriCo}
+
+   - Use \input{sections/...} to include each section
+   - Use \bibliography{references} for references
+3. Write each section file with COMPLETE content (no placeholders)
+4. Each section file should include its \section{} command
+5. Write references.bib with all citations in BibTeX format
+6. After writing all files, compile the paper:
+   cd paper_draft && pdflatex -interaction=nonstopmode main.tex && bibtex main && pdflatex -interaction=nonstopmode main.tex && pdflatex -interaction=nonstopmode main.tex
+
+NOTE ON DOCUMENT CLASS:
+- Use \documentclass{amsart} (NOT \documentclass{article} with \usepackage{style})
+- The amsart class is part of the standard LaTeX distribution — no .sty file needed
+- It provides proper formatting for mathematical papers: theorem numbering,
+  proof environments, AMS math fonts, and standard math journal layout
+
+This modular structure allows humans to easily:
+- Edit individual sections without navigating a large file
+- Track changes per section
+- Reuse sections across different paper versions
+
+════════════════════════════════════════════════════════════════════════════════
+                          QUALITY REQUIREMENTS
+════════════════════════════════════════════════════════════════════════════════
+
+- Academic mathematical tone throughout
+- Every theorem must have a complete proof
+- All definitions must be precise and unambiguous
+- Proper citations using \cite{} commands
+- NO placeholder text - every section must have real content
+- The paper MUST compile without errors
+- If compilation fails, debug and fix the LaTeX errors
+
+════════════════════════════════════════════════════════════════════════════════
+                       MATHEMATICAL WRITING STYLE
+════════════════════════════════════════════════════════════════════════════════
+
+Follow these conventions for mathematical papers:
+
+1. LANGUAGE STYLE:
+   - Use "we" for collaborative exposition: "We prove", "We show", "We define"
+   - Be precise and direct: state results clearly before proving them
+   - Prefer plain language: "We now prove..." over "We shall henceforth demonstrate..."
+   - Use the present tense for mathematical facts: "Theorem 1 shows..."
+   - Avoid vague language: instead of "clearly" or "obviously", explain why
+
+2. INTRODUCTION STRUCTURE:
+   - Context and motivation (why this problem matters)
+   - History (what's known, with citations)
+   - Statement of results (informal but precise)
+   - Proof techniques (brief overview of methods)
+   - Paper organization (roadmap)
+
+3. THEOREM ENVIRONMENTS:
+   Use proper LaTeX theorem environments:
+   \begin{theorem}\label{thm:main}
+     Let $G$ be a graph with $n$ vertices. Then...
+   \end{theorem}
+
+   \begin{proof}
+     We proceed by induction on $n$. ...
+   \end{proof}
+
+4. DEFINITIONS:
+   \begin{definition}\label{def:widget}
+     A \emph{widget} is a pair $(X, \tau)$ where...
+   \end{definition}
+
+   - Italicize the term being defined using \emph{}
+   - State all conditions explicitly
+   - Give examples immediately after non-trivial definitions
+
+5. PROOF STRUCTURE:
+   - Begin with proof strategy: "The proof proceeds in two steps..."
+   - Number or label key claims within proofs
+   - Use \qedhere for proofs ending in displayed equations
+   - Signal transitions: "It remains to show...", "We now verify..."
+
+6. NOTATION CONVENTIONS:
+   - Define all notation in Preliminaries
+   - Use standard notation: $\mathbb{R}$, $\mathbb{Z}$, $\mathbb{N}$
+   - Use \coloneqq or := for definitions
+   - Be consistent: one symbol = one meaning throughout
+
+7. MATHEMATICAL FORMATTING:
+   - Displayed equations for important formulas: \[ ... \]
+   - Inline math for brief expressions: $...$
+   - Use align environment for multi-line equations
+   - Number only equations that are referenced later
+
+8. REFERENCES AND CITATIONS:
+   - Cite prior results when used: "By \cite{author2024}..."
+   - Distinguish between "Theorem 3 of \cite{...}" and your own results
+   - Include both classic references and recent work
+
+9. EXAMPLES AND COUNTEREXAMPLES:
+   - Illustrate each major result with a concrete example
+   - Show tightness: counterexamples demonstrating necessity of hypotheses
+   - Use \begin{example} ... \end{example} environment
+
+10. FIGURES (if applicable):
+    - Diagrams for geometric arguments
+    - Graphs or plots from computational verification
+    - Commutative diagrams for algebraic results
+    - Use TikZ or include pre-generated figures
+
+════════════════════════════════════════════════════════════════════════════════
+                          WORKFLOW: REVIEW AND REFLECT
+════════════════════════════════════════════════════════════════════════════════
+
+Before calling finish, you MUST complete these review steps:
+
+1. REVIEW RESOURCES (at the start):
+   - Read .claude/skills/paper-writer/SKILL.md for detailed guidance
+   - Study templates/paper_writing/lab_style_guide.md for style conventions
+   - Skim paper_draft/example_paper.tex for amsart LaTeX conventions only
+   - Browse paper_examples/ for language patterns (if available)
+
+2. SELF-REFLECTION (before finishing):
+   After writing all sections, review your work against these criteria:
+
+   MATHEMATICAL CONTENT CHECK:
+   - [ ] Every theorem has a complete, rigorous proof
+   - [ ] All definitions are precise with explicit quantifiers
+   - [ ] Examples illustrate major results
+   - [ ] Counterexamples show necessity of hypotheses where applicable
+   - [ ] Notation is consistent throughout
+
+   FORMATTING CHECK:
+   - [ ] Theorem environments (\begin{theorem}...\end{theorem}) used properly
+   - [ ] Proof environments (\begin{proof}...\end{proof}) used for all proofs
+   - [ ] Is hyperref package included for clickable references?
+   - [ ] Labels and cross-references work correctly
+   - [ ] Bibliography entries are complete
+
+   STRUCTURE CHECK:
+   - [ ] Introduction previews main results clearly
+   - [ ] Preliminaries section makes the paper self-contained
+   - [ ] Results are ordered logically (lemmas before theorems that use them)
+   - [ ] Does the paper compile without errors?
+
+3. FIX ISSUES:
+   - Address any issues found in the self-reflection
+   - Re-compile and verify the PDF looks correct
+
+Only after completing this review should you consider the paper finished.

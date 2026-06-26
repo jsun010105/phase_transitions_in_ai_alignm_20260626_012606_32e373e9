@@ -1,0 +1,11 @@
+[project]
+name = "research-workspace"
+version = "0.1.0"
+description = "Mathematics research workspace"
+requires-python = ">=3.10"
+dependencies = [
+    "matplotlib>=3.10.9",
+    "numpy>=2.2.6",
+    "scipy>=1.15.3",
+    "sympy>=1.14.0",
+]

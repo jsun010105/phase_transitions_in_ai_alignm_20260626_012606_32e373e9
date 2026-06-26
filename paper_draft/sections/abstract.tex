@@ -1,0 +1,20 @@
+Empirical work in AI safety shows that finetuning a language model on a narrow malicious
+task sometimes induces broad \emph{emergent misalignment} and sometimes does not, with no
+predictive theory for when the failure occurs or how abrupt it is. We supply such a theory.
+Modeling alignment as a variational free-energy gradient flow in the sense of the Free Energy
+Principle, we derive---rather than posit---a scalar order parameter $m$ whose effective
+potential is the cusp-catastrophe normal form
+$F(m;a,h)=\tfrac14 b m^4+\tfrac12 a(\lambda)m^2-h(\lambda)m$, where $\lambda$ is the
+intervention strength, $a(\lambda)$ an alignment stiffness, and $h(\lambda)$ a directional
+bias. From this single two-parameter family we prove four results. First, a unique critical
+threshold $\lambda^\ast$ separates robust alignment from misalignment, located exactly where
+a Hessian eigenvalue crosses zero. Second, a symmetric ($h\equiv0$) intervention undergoes a
+continuous supercritical pitchfork with mean-field exponent $\beta=\tfrac12$. Third, a biased
+($h\neq0$) intervention unfolds the pitchfork into a fold, producing a discontinuous jump with
+hysteresis on the cusp curve $27bh^2+4a^3=0$; this dichotomy unifies the two empirically
+reported kinetic regimes. Fourth, near $\lambda^\ast$ the variance and autocorrelation time of
+$m$ diverge, yielding a quantitative early-warning law. Proofs use Lyapunov--Schmidt and
+center-manifold reduction, the gradient dynamic-transition theorem, and Ornstein--Uhlenbeck
+analysis; every analytic claim is verified symbolically and numerically. Calibrated to reported
+thresholds, the model classifies null versus emergent-misalignment outcomes with ROC-AUC
+$0.996$ and threshold MAE $0.056$.

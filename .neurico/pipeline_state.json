@@ -1,0 +1,33 @@
+{
+  "created_at": "2026-06-26T01:26:17.236951",
+  "stages": {
+    "resource_finder": {
+      "status": "completed",
+      "started_at": "2026-06-26T01:26:17.237644",
+      "completed_at": "2026-06-26T01:39:34.881567",
+      "success": true,
+      "outputs": {
+        "literature_review": "/workspaces/phase_transitions_in_ai_alignm_20260626_012606_32e373e9/literature_review.md",
+        "resources_catalog": "/workspaces/phase_transitions_in_ai_alignm_20260626_012606_32e373e9/resources.md",
+        "papers_dir": "/workspaces/phase_transitions_in_ai_alignm_20260626_012606_32e373e9/papers",
+        "code_dir": "/workspaces/phase_transitions_in_ai_alignm_20260626_012606_32e373e9/code"
+      }
+    },
+    "experiment_runner": {
+      "status": "completed",
+      "started_at": "2026-06-26T01:39:34.891846",
+      "completed_at": "2026-06-26T02:04:40.847121",
+      "success": true,
+      "outputs": {
+        "success": true,
+        "return_code": 0,
+        "elapsed_time": 1505.837929725647,
+        "log_file": "/workspaces/phase_transitions_in_ai_alignm_20260626_012606_32e373e9/logs/execution_claude.log",
+        "transcript_file": "/workspaces/phase_transitions_in_ai_alignm_20260626_012606_32e373e9/logs/execution_claude_transcript.jsonl"
+      }
+    }
+  },
+  "current_stage": null,
+  "completed": true,
+  "completed_at": "2026-06-26T02:04:40.894260"
+}

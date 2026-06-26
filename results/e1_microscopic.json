@@ -1,0 +1,13 @@
+{
+  "case_A_symmetric": {
+    "lambda_star_pitchfork": 0.711330853947342,
+    "b_at_threshold": 0.12500000000000014,
+    "h_identically_zero": true,
+    "cubic_identically_zero": true
+  },
+  "case_B_biased": {
+    "h_positive_on_unit_interval": true
+  },
+  "mu": 1.5,
+  "s": 1.0
+}

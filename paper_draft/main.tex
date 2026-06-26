@@ -1,0 +1,64 @@
+\documentclass{amsart}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage[hidelinks]{hyperref}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\numberwithin{equation}{section}
+
+% Import command files (if they exist)
+\InputIfFileExists{commands/math}{}{}
+\InputIfFileExists{commands/general}{}{}
+\InputIfFileExists{commands/macros}{}{}
+
+% Bibliography style
+\bibliographystyle{amsplain}
+
+\title[Phase Transitions in AI Alignment]{Phase Transitions in AI Alignment:
+A Free Energy Principle Framework for Predicting Emergent Misalignment}
+
+\author{NeuriCo}
+\email{chicagohailab@gmail.com}
+
+\date{June 26, 2026}
+
+\subjclass[2020]{Primary 37G10, 37N25; Secondary 60H10, 94A17, 37M20}
+
+\keywords{Cusp catastrophe, bifurcation, free energy principle, gradient flow,
+critical transition, emergent misalignment, early-warning signals}
+
+\begin{document}
+
+\begin{abstract}
+\input{sections/abstract}
+\end{abstract}
+
+\maketitle
+
+\input{sections/introduction}
+\input{sections/preliminaries}
+\input{sections/main_results}
+\input{sections/discussion}
+\input{sections/conclusion}
+
+\bibliographystyle{amsplain}
+\bibliography{references}
+
+\end{document}

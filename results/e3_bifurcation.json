@@ -1,0 +1,10 @@
+{
+  "model_symmetric": "a(\u03bb)=1-2\u03bb, b=1, h=0",
+  "symmetric_threshold_lambda_star": 0.5,
+  "biased_fixed_a": -0.6,
+  "analytic_fold_bias_h_c": 0.17888543819998315,
+  "hysteresis_jump_up_h": 0.17999999999999994,
+  "hysteresis_jump_down_h": -0.18000000000000002,
+  "hysteresis_width": 0.36,
+  "hysteresis_width_analytic_2hc": 0.3577708763999663
+}

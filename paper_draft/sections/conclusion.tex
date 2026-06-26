@@ -1,0 +1,27 @@
+\section{Conclusion}\label{sec:conclusion}
+
+We have answered, affirmatively and constructively, whether alignment dynamics admit a
+variational free-energy model in which a narrow misalignment intervention induces a phase
+transition. Modeling alignment as an FEP gradient flow (Theorem~\ref{thm:gradflow}) and deriving
+its potential from a generative mixture (Proposition~\ref{prop:micro}), we showed that the
+universal reduction is the cusp catastrophe \eqref{eq:cusp}. Within this single family we proved
+three things. A unique critical threshold $\lambda^\ast$ provably separates robust alignment from
+emergent misalignment, located exactly at a Hessian eigenvalue crossing
+(Theorem~\ref{thm:threshold}). The order of the transition is set by the symmetry of the
+intervention: continuous for symmetric interventions (Theorem~\ref{thm:pitchfork}) and a
+catastrophic jump with hysteresis for biased ones (Theorem~\ref{thm:fold}), unifying the
+gradual-LoRA and sudden-full-finetune regimes in one normal form. And near the threshold the
+variance and autocorrelation time of the order parameter diverge
+(Theorem~\ref{thm:earlywarning}), giving a critical-slowing-down early-warning law in which the
+internal order parameter leads the behavioral failure.
+
+The key takeaway is a dictionary, backed by theorems and by symbolic and numerical verification,
+between the Free Energy Principle, critical-transition theory, and emergent misalignment: it
+turns an empirical surprise into an a priori, monitorable risk calculation, with null-versus-EM
+classification at ROC-AUC $0.996$ and threshold MAE $0.056$.
+
+Future work should estimate the landscape parameters $(a_0,c,h)$ directly from model internals---
+from basin curvature and from the alignment of the finetuning direction with the misalignment
+axis---to make the threshold prediction operational on real training runs, and should test
+whether the misalignment-onset universality class is genuinely mean-field or carries the
+nontrivial exponents seen in related learning transitions.

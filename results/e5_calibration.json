@@ -1,0 +1,15 @@
+{
+  "calibrated_thresholds": {
+    "health_advice": 0.25,
+    "insecure_code": 0.75
+  },
+  "universality_collapse_R2": 1.0,
+  "early_warning_lambda_var_double": 0.12529264214046823,
+  "early_warning_lead": 0.12470735785953177,
+  "ROC_AUC_null_vs_EM": 0.9960978329036304,
+  "accuracy_at_threshold": 0.925,
+  "predicted_lambda_star": 0.25,
+  "realized_50pct_transition": 0.305570652173913,
+  "threshold_MAE": 0.05557065217391299,
+  "n_configs": 240
+}
