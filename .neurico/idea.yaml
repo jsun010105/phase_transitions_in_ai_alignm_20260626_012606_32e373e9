@@ -1,0 +1,69 @@
+idea:
+  title: 'Phase Transitions in AI Alignment: A Free Energy Principle Framework for
+    Predicting Emergent Misalignment'
+  domain: mathematics
+  hypothesis: 'AI alignment dynamics can be modeled as a variational free energy minimization
+    process where narrow misalignment interventions induce phase transitions in the
+    system''s energy landscape. Critical thresholds exist at which small perturbations
+    trigger abrupt transitions from aligned to broadly misaligned behavior, analogous
+    to morphogenetic phase transitions in biological systems. This mathematical framework
+    will predict both null results (robust alignment) and sudden behavioral shifts
+    (emergent misalignment) as distinct regions of the parameter space.
+
+    '
+  background:
+    description: 'Recent empirical work shows that narrow misalignment training sometimes
+      causes broad misalignment in LLMs while other times produces null results, lacking
+      predictive theory. The free energy principle from theoretical biology successfully
+      models phase transitions in morphogenesis and pathological state changes. Applying
+      this formalism to AI alignment could provide a unified mathematical framework
+      for understanding when and why alignment interventions succeed or catastrophically
+      fail.
+
+      '
+  methodology:
+    approach: Develop a variational free energy model of alignment dynamics, calibrate
+      using empirical data, and validate predictions through bifurcation analysis
+      and numerical simulation
+    steps:
+    - "Formulate alignment state as probability distribution over latent behavioral\
+      \ variables with free energy functional F = E_q[log q(z) - log p(y,z|\u03B8\
+      )] where z represents internal features and \u03B8 training parameters"
+    - "Model training interventions as perturbations to the generative model p(y,z|\u03B8\
+      ) and derive dynamical equations for alignment evolution using gradient flows\
+      \ on the free energy landscape"
+    - 'Identify critical points via bifurcation analysis: compute Jacobian eigenvalues
+      of the dynamical system to locate phase transition boundaries in intervention
+      strength parameter space'
+    - Calibrate model parameters using empirical misalignment data from Turner et
+      al. and Betley et al. via maximum likelihood estimation on observed alignment-to-misalignment
+      transitions
+    - Simulate intervention protocols of varying strengths and predict critical thresholds
+      separating null results from emergent misalignment using numerical continuation
+      methods
+    - Validate predictions by comparing simulated phase diagrams against empirical
+      observations and testing out-of-sample predictions on new intervention protocols
+    metrics:
+    - Prediction accuracy of phase transition thresholds (mean absolute error between
+      predicted and observed critical intervention strengths)
+    - Classification accuracy for null vs. emergent misalignment outcomes (ROC-AUC
+      score)
+    - Lyapunov exponent analysis to quantify stability of aligned vs. misaligned attractors
+    - Jensen-Shannon divergence between predicted and empirical behavioral distributions
+      post-intervention
+  constraints:
+    compute: cpu_only
+    time_limit: 3600
+  metadata:
+    tags:
+    - dynamical_systems
+    - variational_inference
+    - bifurcation_theory
+    - ai_alignment
+    - phase_transitions
+    - free_energy_principle
+    idea_id: phase_transitions_in_ai_alignm_20260626_012606_32e373e9
+    created_at: '2026-06-26T01:26:06.972198'
+    status: submitted
+    github_repo_name: phase_transitions_in_ai_alignm_20260626_012606_32e373e9
+    github_repo_url: https://github.com/jsun010105/phase_transitions_in_ai_alignm_20260626_012606_32e373e9
